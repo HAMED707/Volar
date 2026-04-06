@@ -1,0 +1,197 @@
+<!-- =============================================================================
+     templates/products/product_detail.html
+
+     Full product page with image gallery, variant selector, and add-to-cart.
+     Extends: base.html
+     Context: product, variants, primary_image, related_products
+============================================================================= -->
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} — MAISON{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+  <!-- Breadcrumb -->
+  <nav class="text-xs text-gray-400 mb-8 flex items-center gap-2">
+    <a href="{% url 'products:product_list' %}" class="hover:text-gray-600">All</a>
+    <span>/</span>
+    {% if product.category %}
+      <a href="{% url 'products:category' product.category.slug %}" class="hover:text-gray-600">
+        {{ product.category.name }}
+      </a>
+      <span>/</span>
+    {% endif %}
+    <span class="text-gray-700">{{ product.name }}</span>
+  </nav>
+
+  <!-- ── Main section ── -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
+
+    <!-- Left: Images -->
+    <div class="space-y-3">
+      <!-- Primary image -->
+      <div class="aspect-[3/4] bg-soft overflow-hidden rounded-sm">
+        {% if primary_image %}
+          <img id="main-image"
+               src="{{ primary_image.image.url }}"
+               alt="{{ primary_image.alt_text|default:product.name }}"
+               class="w-full h-full object-cover" />
+        {% elif product.images.all.0 %}
+          <img id="main-image"
+               src="{{ product.images.all.0.image.url }}"
+               alt="{{ product.name }}"
+               class="w-full h-full object-cover" />
+        {% else %}
+          <div class="w-full h-full flex items-center justify-center text-gray-300">
+            <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                d="M4 16l4-4 4 4 4-6 4 6M4 4h16v16H4z"/>
+            </svg>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Thumbnails -->
+      {% if product.images.count > 1 %}
+        <div class="flex gap-2 overflow-x-auto pb-1">
+          {% for img in product.images.all %}
+            <button
+              onclick="document.getElementById('main-image').src='{{ img.image.url }}'"
+              class="shrink-0 w-20 h-20 bg-soft overflow-hidden rounded-sm border-2 border-transparent hover:border-gray-300 transition-colors focus:outline-none focus:border-gray-400">
+              <img src="{{ img.image.url }}" alt="{{ img.alt_text }}" class="w-full h-full object-cover" />
+            </button>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Right: Info & actions -->
+    <div class="flex flex-col">
+
+      <!-- Category -->
+      <p class="text-xs uppercase tracking-[0.2em] text-gray-400 mb-2">
+        {{ product.category.name }}
+      </p>
+
+      <!-- Name -->
+      <h1 class="font-display text-3xl md:text-4xl font-medium leading-snug mb-4">
+        {{ product.name }}
+      </h1>
+
+      <!-- Price -->
+      <p id="product-price" class="text-xl text-gray-700 mb-8">
+        ${{ product.base_price }}
+      </p>
+
+      <!-- Variant selector -->
+      {% if variants %}
+        <form method="post" action="#" class="space-y-6 mb-8">
+          {% csrf_token %}
+
+          {% regroup variants by attributes.all as variant_groups %}
+
+          <!-- Attribute groups -->
+          {% for variant in variants %}
+            {% for attr_val in variant.attributes.all %}
+              <!-- Render each unique attribute once (simplified) -->
+            {% endfor %}
+          {% endfor %}
+
+          <!-- Variant select -->
+          <div>
+            <label class="text-xs uppercase tracking-widest text-gray-400 mb-2 block">
+              Select option
+            </label>
+            <select
+              name="variant"
+              id="variant-select"
+              class="w-full border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-gray-400 transition-colors bg-white"
+              onchange="updatePrice(this)"
+            >
+              {% for variant in variants %}
+                <option
+                  value="{{ variant.pk }}"
+                  data-price="{{ variant.get_price }}"
+                  data-stock="{{ variant.stock }}"
+                  {% if not variant.is_in_stock %}disabled{% endif %}
+                >
+                  {% for attr in variant.attributes.all %}{{ attr.value }}{% if not forloop.last %} / {% endif %}{% endfor %}
+                  — ${{ variant.get_price }}
+                  {% if not variant.is_in_stock %}(Out of stock){% endif %}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Quantity -->
+          <div>
+            <label class="text-xs uppercase tracking-widest text-gray-400 mb-2 block">
+              Quantity
+            </label>
+            <div class="flex items-center border border-gray-200 rounded-sm w-32">
+              <button type="button"
+                onclick="changeQty(-1)"
+                class="px-4 py-3 text-gray-500 hover:text-gray-900 transition-colors">−</button>
+              <input type="number" name="quantity" id="qty" value="1" min="1"
+                class="w-full text-center text-sm outline-none border-x border-gray-200 py-3 bg-white" />
+              <button type="button"
+                onclick="changeQty(1)"
+                class="px-4 py-3 text-gray-500 hover:text-gray-900 transition-colors">+</button>
+            </div>
+          </div>
+
+          <!-- Add to cart -->
+          <button
+            type="submit"
+            class="w-full bg-accent text-white text-sm uppercase tracking-widest py-4 rounded-sm hover:bg-gray-800 transition-colors">
+            Add to Cart
+          </button>
+        </form>
+      {% else %}
+        <p class="text-sm text-gray-400 mb-8">This product is currently out of stock.</p>
+      {% endif %}
+
+      <!-- Description -->
+      {% if product.description %}
+        <div class="border-t border-gray-100 pt-8">
+          <p class="text-xs uppercase tracking-widest text-gray-400 mb-3">Details</p>
+          <p class="text-sm text-gray-600 leading-relaxed">{{ product.description }}</p>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- ── Related products ── -->
+  {% if related_products %}
+    <section class="mt-24">
+      <p class="text-xs uppercase tracking-[0.3em] text-gray-400 mb-2 text-center">You may also like</p>
+      <h2 class="font-display text-2xl text-center mb-10">Related pieces</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-x-5 gap-y-10">
+        {% for product in related_products %}
+          {% include "products/partials/product_card.html" %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+</div>
+
+<script>
+  function updatePrice(select) {
+    const option = select.options[select.selectedIndex];
+    const price = option.dataset.price;
+    if (price) {
+      document.getElementById('product-price').textContent = '$' + parseFloat(price).toFixed(2);
+    }
+  }
+
+  function changeQty(delta) {
+    const input = document.getElementById('qty');
+    const current = parseInt(input.value) || 1;
+    input.value = Math.max(1, current + delta);
+  }
+</script>
+
+{% endblock %}

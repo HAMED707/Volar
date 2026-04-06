@@ -1,0 +1,107 @@
+<!-- =============================================================================
+     templates/products/category.html
+
+     Displays all products within a specific category.
+     Extends: base.html
+     Context: category, products (paginated), categories
+============================================================================= -->
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} — MAISON{% endblock %}
+
+{% block content %}
+
+  <!-- Hero strip -->
+  <section class="bg-soft py-16 px-4 text-center">
+    <p class="text-xs uppercase tracking-[0.3em] text-gray-400 mb-3">Collection</p>
+    <h1 class="font-display text-4xl md:text-5xl font-medium">{{ category.name }}</h1>
+    {% if category.parent %}
+      <p class="text-sm text-gray-400 mt-3">
+        <a href="{% url 'products:category' category.parent.slug %}"
+           class="hover:underline">{{ category.parent.name }}</a>
+        &rsaquo; {{ category.name }}
+      </p>
+    {% endif %}
+  </section>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex flex-col md:flex-row gap-10">
+
+      <!-- Sidebar -->
+      <aside class="w-full md:w-48 shrink-0">
+        <p class="text-xs uppercase tracking-widest text-gray-400 mb-4">Categories</p>
+        <ul class="space-y-2 text-sm">
+          <li>
+            <a href="{% url 'products:product_list' %}"
+               class="text-gray-500 hover:text-gray-900 hover:underline transition-colors">All</a>
+          </li>
+          {% for cat in categories %}
+            <li>
+              <a href="{% url 'products:category' cat.slug %}"
+                 class="{% if cat.slug == category.slug %}font-medium text-gray-900{% else %}text-gray-500 hover:text-gray-900{% endif %} hover:underline transition-colors">
+                {{ cat.name }}
+              </a>
+              <!-- Sub-categories -->
+              {% if cat.children.all %}
+                <ul class="ml-3 mt-1 space-y-1">
+                  {% for child in cat.children.all %}
+                    <li>
+                      <a href="{% url 'products:category' child.slug %}"
+                         class="text-xs {% if child.slug == category.slug %}font-medium text-gray-900{% else %}text-gray-400 hover:text-gray-700{% endif %} hover:underline transition-colors">
+                        {{ child.name }}
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </aside>
+
+      <!-- Product grid -->
+      <div class="flex-1">
+        {% if products %}
+          <p class="text-sm text-gray-400 mb-6">{{ paginator.count }} item{{ paginator.count|pluralize }}</p>
+
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-10">
+            {% for product in products %}
+              {% include "products/partials/product_card.html" %}
+            {% endfor %}
+          </div>
+
+          <!-- Pagination -->
+          {% if is_paginated %}
+            <div class="flex justify-center items-center gap-2 mt-16">
+              {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}"
+                   class="px-4 py-2 text-sm border border-gray-200 rounded-full hover:bg-gray-50 transition-colors">
+                  Previous
+                </a>
+              {% endif %}
+              <span class="text-sm text-gray-400">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+              </span>
+              {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}"
+                   class="px-4 py-2 text-sm border border-gray-200 rounded-full hover:bg-gray-50 transition-colors">
+                  Next
+                </a>
+              {% endif %}
+            </div>
+          {% endif %}
+
+        {% else %}
+          <div class="text-center py-24 text-gray-400">
+            <p class="text-lg">No products in this category yet.</p>
+            <a href="{% url 'products:product_list' %}" class="text-sm underline mt-2 inline-block hover:text-gray-600">
+              Browse all products
+            </a>
+          </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+
+{% endblock %}

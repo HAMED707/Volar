@@ -1,0 +1,141 @@
+<!-- =============================================================================
+     templates/base.html
+
+     Base layout for the entire site.
+     Includes: Tailwind CDN, navbar, search bar, footer
+     All other templates extend this file.
+============================================================================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}MAISON{% endblock %}</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            accent: "#1a1a1a",
+            soft:   "#f5f5f0",
+          },
+          fontFamily: {
+            display: ["'Playfair Display'", "serif"],
+            body:    ["'DM Sans'", "sans-serif"],
+          },
+        },
+      },
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <!-- HTMX -->
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+  {% block extra_head %}{% endblock %}
+
+  <style>
+    body { font-family: 'DM Sans', sans-serif; }
+    .font-display { font-family: 'Playfair Display', serif; }
+  </style>
+</head>
+
+<body class="bg-white text-gray-900 antialiased">
+
+  <!-- ── Navbar ── -->
+  <header class="sticky top-0 z-50 bg-white border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Logo -->
+        <a href="/" class="font-display text-2xl tracking-widest font-semibold">
+          MAISON
+        </a>
+
+        <!-- Nav links -->
+        <nav class="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide">
+          <a href="{% url 'products:product_list' %}" class="hover:text-gray-500 transition-colors">All</a>
+          {% for cat in nav_categories %}
+            <a href="{% url 'products:category' cat.slug %}" class="hover:text-gray-500 transition-colors">
+              {{ cat.name }}
+            </a>
+          {% endfor %}
+        </nav>
+
+        <!-- Search + Cart -->
+        <div class="flex items-center gap-4">
+
+          <!-- Search form -->
+          <form action="{% url 'products:search' %}" method="get" class="hidden sm:flex items-center border border-gray-200 rounded-full px-4 py-1.5 gap-2 focus-within:border-gray-400 transition-colors">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+            </svg>
+            <input
+              type="text"
+              name="q"
+              placeholder="Search..."
+              value="{{ request.GET.q }}"
+              class="text-sm outline-none w-36 bg-transparent placeholder-gray-400"
+            />
+          </form>
+
+          <!-- Cart icon -->
+          <a href="#" class="relative p-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/>
+            </svg>
+          </a>
+
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Page content ── -->
+  <main class="min-h-screen">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer class="bg-accent text-white mt-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div>
+          <p class="font-display text-2xl tracking-widest mb-4">MAISON</p>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Curated fashion for the modern wardrobe.
+          </p>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-widest text-gray-500 mb-4">Shop</p>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="{% url 'products:product_list' %}" class="hover:text-white transition-colors">All Products</a></li>
+            {% for cat in nav_categories %}
+              <li><a href="{% url 'products:category' cat.slug %}" class="hover:text-white transition-colors">{{ cat.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-widest text-gray-500 mb-4">Help</p>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="#" class="hover:text-white transition-colors">Shipping & Returns</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Size Guide</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 mt-12 pt-6 text-xs text-gray-600 text-center">
+        &copy; {% now "Y" %} MAISON. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

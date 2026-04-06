@@ -155,3 +155,4 @@ dmypy.json
 cython_debug/
 
 # End of https://mrkandreev.name/snippets/gitignore-generator/#venv,Redis,Python
+projectOverview.md

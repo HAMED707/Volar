@@ -1,0 +1,45 @@
+<!-- =============================================================================
+     templates/products/partials/product_card.html
+
+     Reusable product card used on: product list, category, search results.
+     Context: product
+============================================================================= -->
+<a href="{% url 'products:product_detail' product.slug %}" class="group block">
+
+  <!-- Image -->
+  <div class="aspect-[3/4] bg-soft overflow-hidden rounded-sm mb-3 relative">
+    {% with product.images.all.0 as img %}
+      {% if img %}
+        <img
+          src="{{ img.image.url }}"
+          alt="{{ img.alt_text|default:product.name }}"
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+      {% else %}
+        <div class="w-full h-full flex items-center justify-center text-gray-300">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+              d="M4 16l4-4 4 4 4-6 4 6M4 4h16v16H4z"/>
+          </svg>
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Out of stock badge -->
+    {% with product.variants.all as variants %}
+      {% if not variants %}
+        <span class="absolute top-2 left-2 text-xs bg-white px-2 py-0.5 text-gray-500 tracking-wide">
+          Out of stock
+        </span>
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Info -->
+  <div>
+    <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">{{ product.category.name }}</p>
+    <p class="text-sm font-medium text-gray-900 group-hover:underline leading-snug">{{ product.name }}</p>
+    <p class="text-sm text-gray-500 mt-1">${{ product.base_price }}</p>
+  </div>
+
+</a>
