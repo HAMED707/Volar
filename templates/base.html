@@ -47,20 +47,31 @@
   </style>
 </head>
 
-<body class="bg-white text-gray-900 antialiased">
+<body class="
+  bg-white
+  text-gray-900
+  antialiased">
 
-  <nav class="bg-white shadow-md">
+  <nav class="
+    bg-white
+    shadow-md">
+
     <div class="
+      px-4
+      py-3
       flex
       items-center
       justify-between">
       
       <!-- Logo -->
-      <div class="
+      <a href="" class="
        text-xl
        font-bold
-       "> VOLAR
-      </div>
+       "> 
+       <span class="
+        text-red-500">
+        V</span>OLAR
+      </a>
       <!-- end Logo -->
 
       <!-- Search -->
@@ -77,9 +88,51 @@
 
        </div>
       <!-- end Search -->
+
+      <!-- Links -->
+       <div class="
+        flex
+        items-center
+        gap-4">
+          
+          <!-- Cart -->
+           <!-- <div>
+             🛒
+            <span>0</span>
+           </div> -->
+          <!-- end Cart -->
+
+          <!-- User -->
+          <a href="" class="bg-blue-500 text-white px-1 py-1 rounded">
+            Account
+          </a>
+          <!-- end User -->
+       </div>
+      <!-- end Links -->
+
+   
     </div>
   </nav>
 
+  <nav class="
+   flex
+   justify-center
+   items-center
+   px-4
+   py-1
+   bg-black
+   shadow-md
+   ">
+    <!-- Links -->
+       <div class="
+        flex
+        items-center
+        gap-4">
+          <a href="/" class="text-white">HOME</a>
+          <a href="/products" class="text-white">PRODUCTS</a>
+       </div>
+      <!-- end Links -->
+  </nav>  
   <!-- ── Page content ── -->
   <main class="min-h-screen">
     {% block content %}{% endblock %}
