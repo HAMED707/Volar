@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% block title %}Products — VOLAR{% endblock %}
 {% block content %}
 
 <div class="max-w-6xl mx-auto px-4">
@@ -10,12 +10,14 @@
 
     <!-- Card -->
       <div class="bg-white rounded-lg shadow p-4 hover:shadow-lg">
-
+        
+        {% if product.image %}
         <img 
-          src="{{ product.image.url }}" 
-          alt="{{ product.name }}" 
-          class="w-full h-48 object-contain rounded-md mb-4"
+        src="{{ product.image.url }}" 
+        alt="{{ product.name }}" 
+        class="w-full h-48 object-contain rounded-md mb-4"
         /> 
+        {% endif %}
 
         <div class="text-lg font-semibold mb-1">
           {{ product.name }}
